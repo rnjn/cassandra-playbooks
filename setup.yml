@@ -1,0 +1,6 @@
+---
+- name: "cassandra playbooks"
+  hosts: cassandra_nodes
+  user: scaleworks
+  roles:
+    - cassandra
