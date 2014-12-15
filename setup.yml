@@ -1,6 +1,12 @@
 ---
-- name: "cassandra playbooks"
+- name: "cassandra"
   hosts: cassandra_nodes
-  user: scaleworks
   roles:
     - cassandra
+
+- name: "opscenter"
+  hosts: 
+    - cassandra_nodes
+    - opscenter_server
+  roles:
+    - opscenter
