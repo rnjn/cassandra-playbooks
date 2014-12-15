@@ -1,0 +1,29 @@
+- name: Register iptable rules
+  shell: iptables -L
+  register: iptablesrules
+  sudo: yes
+
+- name: Allow Opscenter monitoring
+  command: /sbin/iptables -I INPUT 1 -p tcp --dport 61620 -j ACCEPT -m comment --comment "OpscenterMonitoring"
+  sudo: yes
+  when: iptablesrules.stdout.find("OpscenterMonitoring") == -1
+
+- name: Allow Opscenter agents
+  command: /sbin/iptables -I INPUT 1 -p tcp --dport 61621 -j ACCEPT -m comment --comment "OpscenterAgents"
+  sudo: yes
+  when: iptablesrules.stdout.find("OpscenterAgents") == -1
+
+- name: save iptables
+  shell: iptables-save > /etc/sysconfig/iptables
+  sudo: yes
+
+- name: copy agent installer
+  copy: src=/tmp/agent.tar.gz dest=/tmp/agent.tar.gz flat=yes
+
+- name: unarchive installer
+  unarchive: src=/tmp/agent.tar.gz dest=/tmp/agent/
+
+- name: install agent
+  shell: /tmp/agent/bin/install_agent.sh /tmp/agent/opscenter-agent.rpm 172.18.46.2
+  sudo: yes
+
