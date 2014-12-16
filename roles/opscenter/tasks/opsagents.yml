@@ -17,13 +17,35 @@
   shell: iptables-save > /etc/sysconfig/iptables
   sudo: yes
 
-- name: copy agent installer
-  copy: src=/tmp/agent.tar.gz dest=/tmp/agent.tar.gz flat=yes
-
-- name: unarchive installer
-  unarchive: src=/tmp/agent.tar.gz dest=/tmp/agent/
-
-- name: install agent
-  shell: /tmp/agent/bin/install_agent.sh /tmp/agent/opscenter-agent.rpm 172.18.46.2
+- name: remove existing agent
+  yum: name=datastax-agent state=absent
   sudo: yes
 
+- name: install agent
+  yum: name=datastax-agent state=present
+  sudo: yes
+
+- name: stop agent
+  service: name=datastax-agent state=stopped
+  sudo: yes
+  
+- name: set server address
+  lineinfile: "dest=/var/lib/datastax-agent/conf/address.yaml regexp='stomp_interface' line='stomp_interface: 172.18.46.2' backup=yes create=yes" 
+  sudo: yes
+
+- name: disable ssl
+  lineinfile: "dest=/var/lib/datastax-agent/conf/address.yaml regexp='use_ssl' line='use_ssl: 0' backup=yes create=yes"
+  sudo: yes
+
+- name: set local_address
+  lineinfile: "dest=/var/lib/datastax-agent/conf/address.yaml regexp='local_address' line='local_address: {{ inventory_hostname }}' backup=yes create=yes"
+  sudo: yes
+
+- name: set agent_rpc_broadcast_address
+  lineinfile: "dest=/var/lib/datastax-agent/conf/address.yaml regexp='agent_rpc_broadcast_interface' line='agent_rpc_broadcast_address: {{ inventory_hostname }}' backup=yes create=yes"
+  sudo: yes
+
+- name: start agent
+  service: name=datastax-agent state=started
+  sudo: yes
+  
