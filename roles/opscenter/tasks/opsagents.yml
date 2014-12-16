@@ -45,6 +45,10 @@
   lineinfile: "dest=/var/lib/datastax-agent/conf/address.yaml regexp='agent_rpc_broadcast_interface' line='agent_rpc_broadcast_address: {{ inventory_hostname }}' backup=yes create=yes"
   sudo: yes
 
+- name: set agent_rpc_interface
+  lineinfile: "dest=/var/lib/datastax-agent/conf/address.yaml regexp='agent_rpc_interface' line='agent_rpc_interface: {{ inventory_hostname }}' backup=yes create=yes"
+  sudo: yes
+
 - name: start agent
   service: name=datastax-agent state=started
   sudo: yes
