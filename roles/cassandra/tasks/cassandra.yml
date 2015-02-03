@@ -13,6 +13,10 @@
   yum: name=jna state=present
   sudo: yes
 
+- name: stop cassandra
+  service: name=cassandra state=stopped
+  sudo: yes
+
 - name: Install cassandra
   yum: name=dsc20 state=present
   sudo: yes
@@ -65,9 +69,6 @@
   sudo: yes
   tags: iptables
 
-- name: stop cassandra
-  service: name=cassandra state=stopped
-  sudo: yes
 
 - name: delete system data
   command: rm -rf /var/lib/cassandra/data/system/*
